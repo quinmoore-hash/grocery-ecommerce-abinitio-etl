@@ -1,0 +1,13 @@
+/* daily_online_sales.dml
+ * Output fact: business_date x store_id x fulfillment_type x department */
+record
+  date("YYYY-MM-DD")(",") business_date;
+  decimal(",") store_id;
+  string(",")  fulfillment_type;
+  string(",")  department;
+  decimal(",") order_count;
+  decimal(",") unit_qty;
+  decimal(",") gross_sales;
+  decimal(",") discount_total;
+  decimal("\n") net_sales;
+end;

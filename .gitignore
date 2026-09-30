@@ -1,0 +1,6 @@
+data/out/
+data/serial/*.dat
+!data/serial/product_dim.dat
+logs/
+*.swp
+.DS_Store

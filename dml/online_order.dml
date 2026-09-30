@@ -1,0 +1,15 @@
+/* online_order.dml
+ * Raw online order lines exported nightly from the ecommerce platform.
+ * Feed: online_orders_YYYYMMDD.dat (comma-delimited, newline terminated) */
+record
+  string(",")  order_id;
+  date("YYYY-MM-DD")(",") business_date;
+  string(",")  customer_id;
+  decimal(",") store_id;            /* fulfilling store               */
+  string(",")  fulfillment_type;    /* DELIVERY | PICKUP              */
+  decimal(",") sku;
+  decimal(",") qty;
+  decimal(",") unit_price;
+  decimal(",") discount_amt;        /* promo discount on the line     */
+  string("\n") order_status;        /* PLACED | FULFILLED | CANCELLED */
+end;

@@ -1,0 +1,4 @@
+# project.pset - Ab Initio project parameters, sourced by run/*.ksh
+export PROJECT_NAME=grocery-ecommerce-abinitio-etl
+export PROJECT_DIR=${PROJECT_DIR:-$(cd "$(dirname "${.sh.file:-$0}")/.." && pwd)}
+export AB_HOME=${AB_HOME:-/opt/abinitio/abinitio-V4}

@@ -1,0 +1,23 @@
+;;; daily_ecommerce.plan
+;;; Conduct>It plan: START -> daily_online_sales -> END
+;;; Cron: 0 3 * * *  (03:00 local, after the ecommerce export lands)
+
+plan daily_ecommerce
+
+  parameter BUSINESS_DATE = "${BUSINESS_DATE}"   ;; YYYYMMDD
+
+  task START
+    type = trigger
+
+  task daily_online_sales
+    type    = program
+    program = "$PROJECT_DIR/run/daily_online_sales.ksh"
+    args    = "${BUSINESS_DATE}"
+
+  task END
+    type = terminal
+
+  depends daily_online_sales on START
+  depends END                on daily_online_sales
+
+end plan

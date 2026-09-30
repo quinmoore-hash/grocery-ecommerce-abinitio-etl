@@ -1,0 +1,44 @@
+/* daily_rollup.xfr
+ * ROLLUP transform for daily_online_sales.mp.
+ * Key: business_date, store_id, fulfillment_type, department */
+
+temporary_type temp_t =
+  record
+    decimal("") order_count;
+    decimal("") unit_qty;
+    decimal("") gross_sales;
+    decimal("") discount_total;
+    string("")  last_order_id;
+  end;
+
+temp :: initialize(in) =
+begin
+  temp.order_count    :: 0;
+  temp.unit_qty       :: 0;
+  temp.gross_sales    :: 0;
+  temp.discount_total :: 0;
+  temp.last_order_id  :: "";
+end;
+
+temp :: rollup(temp, in) =
+begin
+  /* input is sorted by key then order_id, so a change in order_id = new order */
+  temp.order_count    :: temp.order_count + (in.order_id != temp.last_order_id ? 1 : 0);
+  temp.last_order_id  :: in.order_id;
+  temp.unit_qty       :: temp.unit_qty + in.qty;
+  temp.gross_sales    :: temp.gross_sales + in.line_total;
+  temp.discount_total :: temp.discount_total + in.discount_amt;
+end;
+
+out :: finalize(temp, in) =
+begin
+  out.business_date    :: in.business_date;
+  out.store_id         :: in.store_id;
+  out.fulfillment_type :: in.fulfillment_type;
+  out.department       :: in.department;
+  out.order_count      :: temp.order_count;
+  out.unit_qty         :: temp.unit_qty;
+  out.gross_sales      :: decimal_round(temp.gross_sales, 2);
+  out.discount_total   :: decimal_round(temp.discount_total, 2);
+  out.net_sales        :: decimal_round(temp.gross_sales - temp.discount_total, 2);
+end;

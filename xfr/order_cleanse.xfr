@@ -1,0 +1,23 @@
+/* order_cleanse.xfr
+ * REFORMAT transform for daily_online_sales.mp.
+ * Drops cancelled orders, trims strings, fills nulls, computes line total. */
+
+out :: is_valid_order(in) =
+begin
+  out :: string_upcase(string_lrtrim(in.order_status)) != "CANCELLED"
+         && in.qty > 0;
+end;
+
+out::reformat(in) =
+begin
+  out.order_id         :: string_lrtrim(in.order_id);
+  out.business_date    :: in.business_date;
+  out.customer_id      :: string_lrtrim(in.customer_id);
+  out.store_id         :: in.store_id;
+  out.fulfillment_type :: string_upcase(string_lrtrim(in.fulfillment_type));
+  out.sku              :: in.sku;
+  out.qty              :: in.qty;
+  out.unit_price       :: is_null(in.unit_price) ? 0 : in.unit_price;
+  out.discount_amt     :: is_null(in.discount_amt) ? 0 : in.discount_amt;
+  out.line_total       :: decimal_round(in.qty * (is_null(in.unit_price) ? 0 : in.unit_price), 2);
+end;

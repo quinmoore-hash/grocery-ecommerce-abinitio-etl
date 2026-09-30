@@ -1,0 +1,8 @@
+/* product_dim.dml
+ * Product dimension lookup, keyed by sku. */
+record
+  decimal(",") sku;
+  string(",")  product_name;
+  string(",")  department;          /* PRODUCE | DAIRY | BAKERY | ... */
+  string("\n") category;
+end;

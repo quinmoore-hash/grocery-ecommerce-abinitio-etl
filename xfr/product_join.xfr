@@ -1,0 +1,18 @@
+/* product_join.xfr
+ * JOIN transform for daily_online_sales.mp.
+ * in0 = cleansed order lines, in1 = product_dim (key: sku).
+ * Unmatched skus go to the unused0 port -> reject file. */
+
+out::join(in0, in1) =
+begin
+  out.order_id         :: in0.order_id;
+  out.business_date    :: in0.business_date;
+  out.store_id         :: in0.store_id;
+  out.fulfillment_type :: in0.fulfillment_type;
+  out.sku              :: in0.sku;
+  out.department       :: in1.department;
+  out.category         :: in1.category;
+  out.qty              :: in0.qty;
+  out.line_total       :: in0.line_total;
+  out.discount_amt     :: in0.discount_amt;
+end;

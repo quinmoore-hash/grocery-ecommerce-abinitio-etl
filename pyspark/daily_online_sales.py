@@ -201,10 +201,18 @@ def write_single_file(df: DataFrame, path: str) -> None:
     ]
     if len(parts) != 1:
         raise RuntimeError(f"expected 1 part file in {tmp_dir}, found {len(parts)}")
-    if fs.exists(dst_path):
-        fs.delete(dst_path, False)
+    backup_path = jvm.org.apache.hadoop.fs.Path(f"{path}._prev")
+    had_previous = fs.exists(dst_path)
+    if had_previous:
+        fs.delete(backup_path, False)
+        if not fs.rename(dst_path, backup_path):
+            raise RuntimeError(f"failed to move existing {path} aside")
     if not fs.rename(parts[0], dst_path):
+        if had_previous:
+            fs.rename(backup_path, dst_path)
         raise RuntimeError(f"failed to move {parts[0]} to {path}")
+    if had_previous:
+        fs.delete(backup_path, False)
     fs.delete(tmp_path, True)
     crc_path = jvm.org.apache.hadoop.fs.Path(
         dst_path.getParent(), f".{dst_path.getName()}.crc"
@@ -226,9 +234,13 @@ def run(spark: SparkSession, business_date: str, project_dir: str) -> None:
     product_dim = read_csv(spark, product_dim_file, PRODUCT_DIM_SCHEMA)
 
     cleansed = cleanse(orders).cache()
-    write_single_file(rejects(cleansed, product_dim), reject_file)
-    write_single_file(daily_rollup(product_join(cleansed, product_dim)), output_file)
-    cleansed.unpersist()
+    try:
+        write_single_file(rejects(cleansed, product_dim), reject_file)
+        write_single_file(
+            daily_rollup(product_join(cleansed, product_dim)), output_file
+        )
+    finally:
+        cleansed.unpersist()
 
 
 def parse_args(argv):
